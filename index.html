@@ -82,4 +82,78 @@ role-tables:
     .custom-news-list li { border-bottom: 1px dashed #eee; transition: background 0.3s; }
     .custom-news-list li:hover { background-color: #fcfcfc; }
     .gradio-container { border: 1px solid #dee2e6; }
+    <style>
+    /* 核心风格：活力橙与科技感结合 */
+    :root {
+        --accent-orange: #ff7e5f;    /* 主色调：珊瑚橙 */
+        --hover-orange: #feb47b;     /* 悬停色：金橙色 */
+        --link-bg: rgba(255, 126, 95, 0.1); /* 浅橙色背景 */
+        --primary-blue: #2d3436;     /* 保持正文深色，确保对比度 */
+    }
+
+    /* 1. 链接样式：橙色滑动下划线 + 浅橙背景 */
+    .hero-section a, .news a, #people a, .btn-link {
+        color: #d35400; /* 深橙色文字，保证可读性 */
+        text-decoration: none;
+        position: relative;
+        padding: 2px 6px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        border-radius: 4px;
+    }
+
+    /* 橙色底线动画 */
+    .hero-section a::after, .news a::after, .btn-link::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 2px;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(to right, var(--accent-orange), var(--hover-orange));
+        transform: scaleX(0);
+        transform-origin: bottom right;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* 悬停状态：背景变色 + 底线展开 */
+    .hero-section a:hover, .news a:hover, .btn-link:hover {
+        background-color: var(--link-bg);
+        color: #e67e22;
+        text-decoration: none;
+    }
+
+    .hero-section a:hover::after, .news a:hover::after, .btn-link:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+    }
+
+    /* 2. 英雄区左侧装饰条同步换色 */
+    .hero-section {
+        padding: 3rem 1.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid rgba(255,126,95,0.1);
+        margin-bottom: 3rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .hero-section::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 5px; height: 100%;
+        background: linear-gradient(to bottom, var(--accent-orange), var(--hover-orange));
+    }
+
+    /* 3. 强调文字颜色 */
+    .hero-section b { color: #e67e22; }
+
+    /* 4. 按钮风格微调 */
+    .btn-link {
+        display: inline-block;
+        margin-top: 10px;
+    }
+</style>
+
 </style>
