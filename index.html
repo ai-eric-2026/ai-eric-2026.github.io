@@ -3,7 +3,6 @@ layout: default
 title: Home
 notitle: true
 
-# groups of columns of {roles: list, width: num, image: bool}
 role-tables:
 - - roles: [faculty, postdoc, staff]
     width: 4
@@ -17,52 +16,70 @@ role-tables:
   - roles: [alum]
     width: 7
     image: false
-
 ---
 
-<div class="jumbotron">
-    <p>
-        <b>肖航课题组</b>开发了首个<b>基于字符串的可逆晶体表示法: SLICES</b>,实现了生成式AI驱动的<b>Text2Crystal</b>。SLICES有望成为AI驱动的晶体材料逆向设计的标准工具,即<b>晶体材料的"SMILES"</b>。 
-    </p>
-    <p>
-    The <b>XIAO Research Group</b> developed the first <b>string-based invertible, invariant crystallographic representation: SLICES</b>, achieving <b>Text2Crystal</b> powered by generative AI. SLICES has the potential to become a standard tool for <i> in-silico </i> materials discovery, i.e. "SMILES" for crystal structures.
-    </p>
+<!-- 1. 强化视觉引导的横幅 -->
+<div class="jumbotron p-5 mb-5 rounded-lg shadow-sm" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-left: 5px solid #007bff;">
+    <div class="container-fluid py-2">
+        <h2 class="display-5 font-weight-bold mb-4">Generative AI for Materials Discovery</h2>
+        <p class="lead">
+            <b>肖航课题组</b>开发了首个<b>基于字符串的可逆晶体表示法：SLICES</b>，实现了生成式AI驱动的 <b>Text2Crystal</b>。SLICES有望成为AI驱动的晶体材料逆向设计的标准工具，即<b>晶体材料的 "SMILES"</b>。
+        </p>
+        <hr class="my-4">
+        <p class="text-muted italic">
+            The <b>XIAO Research Group</b> developed the first <b>string-based invertible, invariant crystallographic representation: SLICES</b>, achieving <b>Text2Crystal</b> powered by generative AI. SLICES has the potential to become a standard tool for <i>in-silico</i> materials discovery, i.e., "SMILES" for crystal structures.
+        </p>
+    </div>
 </div>
 
-<section>
-    <h2>新闻 News</h2>
-    <ul class="news list-unstyled">
+<!-- 2. 更加规整的新闻板块 -->
+<section class="mb-5">
+    <div class="d-flex justify-content-between align-items-end mb-3 border-bottom pb-2">
+        <h2 class="mb-0">新闻 <span class="text-secondary" style="font-weight: 300;">News</span></h2>
+        <a href="{{ site.base }}/blog.html" class="btn btn-sm btn-outline-primary">
+            <i class="fa fa-history mr-1"></i> Older posts
+        </a>
+    </div>
+    <ul class="news list-unstyled custom-news-list">
         {% for post in site.posts limit: site.front_page_news %}
-            {% include news-item.html item=post %}
+            <li class="mb-2 py-1">
+                {% include news-item.html item=post %}
+            </li>
         {% endfor %}
     </ul>
-    {% assign numposts = site.posts | size %}
-    {% if numposts >= 1 %}
-        <p>
-            <span class="fa fa-fw fa-history"></span>
-            <a href="{{ site.base }}/blog.html">Older posts&hellip;</a>
-        </p>
-    {% endif %}
 </section>
 
-<script
-	type="module"
-	src="https://gradio.s3-us-west-2.amazonaws.com/6.5.1/gradio.js"
-></script>
+<!-- 3. Gradio 组件优化：增加容器限制高度或美化间距 -->
+<section class="mb-5">
+    <h2 class="mb-3 border-bottom pb-2">在线演示 <span class="text-secondary" style="font-weight: 300;">Demo</span></h2>
+    <div class="gradio-container shadow-sm rounded overflow-hidden" style="min-height: 500px; background-color: #fff;">
+        <script type="module" src="https://gradio.s3-us-west-2.amazonaws.com/6.5.1/gradio.js"></script>
+        <gradio-app src="https://ai-eric2026-chatbot-test.hf.space" target="_blank"></gradio-app>
+    </div>
+</section>
 
-<gradio-app src="https://ai-eric2026-chatbot-test.hf.space" target="_blank"></gradio-app>
-
-<div id="people">
-    <h2>People</h2>
+<!-- 4. 人员板块 -->
+<div id="people" class="mb-5">
+    <h2 class="mb-4 border-bottom pb-2">团队成员 <span class="text-secondary" style="font-weight: 300;">People</span></h2>
     {% for role-table in page.role-tables %}
-        <section class="people row justify-content-between">
+        <section class="people row mb-4">
             {% for role-column in role-table %}
                 <div class="col-md-{{ role-column.width }}">
                     {% for role in role-column.roles %}
-                        {% include role-people.html role=role image=role-column.image %}
+                        <div class="role-group mb-4">
+                            {% include role-people.html role=role image=role-column.image %}
+                        </div>
                     {% endfor %}
                 </div>
             {% endfor %}
         </section>
     {% endfor %}
 </div>
+
+<style>
+    /* 补齐一些基本的微调样式 */
+    .jumbotron b { color: #0056b3; }
+    .custom-news-list li { border-bottom: 1px dashed #eee; transition: background 0.3s; }
+    .custom-news-list li:hover { background-color: #fcfcfc; }
+    .gradio-container { border: 1px solid #dee2e6; }
+</style>
