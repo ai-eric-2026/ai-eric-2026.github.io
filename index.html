@@ -1,3 +1,23 @@
+---
+layout: default
+title: Home
+notitle: true
+
+role-tables:
+- - roles: [faculty, postdoc, staff]
+    width: 4
+    image: true
+  - roles: [grad]
+    width: 8
+    image: true
+- - roles: [collab, ugrad, ugrad-alum]
+    width: 5
+    image: false
+  - roles: [alum]
+    width: 7
+    image: false
+---
+
 <style>
     /* 核心风格：活力橙与科技感结合 */
     :root {
@@ -71,3 +91,54 @@
         margin-top: 10px;
     }
 </style>
+
+<!-- 内容结构 -->
+<div class="hero-section">
+    <p class="lead" style="font-size: 1.25rem; line-height: 1.8;">
+        <b>肖航课题组</b>开发了首个<b>基于字符串的可逆晶体表示法：SLICES</b>，实现了生成式AI驱动的 <b>Text2Crystal</b>。SLICES有望成为AI驱动的晶体材料逆向设计的标准工具，即<b>晶体材料的 "SMILES"</b>。
+    </p>
+    <p class="text-secondary" style="font-style: italic; line-height: 1.6;">
+        The <b>XIAO Research Group</b> developed the first <b>string-based invertible, invariant crystallographic representation: SLICES</b>, achieving <b>Text2Crystal</b> powered by generative AI. SLICES has the potential to become a standard tool for <i>in-silico</i> materials discovery, i.e. "SMILES" for crystal structures.
+    </p>
+</div>
+
+<section>
+    <h2>News</h2>
+    <ul class="news list-unstyled" style="padding-left: 10px;">
+        {% for post in site.posts limit: site.front_page_news %}
+            <li class="mb-3" style="border-left: 2px solid #f0f0f0; padding-left: 15px;">
+                {% include news-item.html item=post %}
+            </li>
+        {% endfor %}
+    </ul>
+    {% assign numposts = site.posts | size %}
+    {% if numposts >= 1 %}
+        <p class="mt-3">
+            <a href="{{ site.base }}/blog.html" class="btn-link">
+                <i class="fa fa-history"></i> 查看更多历史动态 Older posts
+            </a>
+        </p>
+    {% endif %}
+</section>
+
+<div class="demo-card">
+    <script type="module" src="https://gradio.s3-us-west-2.amazonaws.com"></script>
+    <gradio-app src="https://ai-eric2026-chatbot-test.hf.space" target="_blank"></gradio-app>
+</div>
+
+<div id="people">
+    <h2>People</h2>
+    {% for role-table in page.role-tables %}
+        <section class="people row mb-5">
+            {% for role-column in role-table %}
+                <div class="col-md-{{ role-column.width }}">
+                    {% for role in role-column.roles %}
+                        <div class="role-wrapper" style="margin-bottom: 2rem;">
+                             {% include role-people.html role=role image=role-column.image %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </section>
+    {% endfor %}
+</div>
