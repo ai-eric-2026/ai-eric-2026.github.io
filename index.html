@@ -58,33 +58,43 @@ role-tables:
     </div>
 </section>
 
-<!-- 3.5 Python 数字媒体实验室 (PyScript 修复版) -->
+!-- 3.5 Python 数字媒体实验室 (对比优化版) -->
 <section class="mb-5">
     <h2 class="mb-3 border-bottom pb-2">数字媒体实验室 <span class="text-secondary" style="font-weight: 300;">Python Lab</span></h2>
     
-    <!-- 使用 cdnjs 提高加载成功率 -->
-    <link rel="stylesheet" href="https://pyscript.net/releases/2026.3.1/core.css" />
-   <script
-            type="module"
-            src="https://pyscript.net/releases/2026.3.1/core.js"
-        ></script>
-
     <div class="lab-container p-4 shadow-sm rounded" style="background: #fff; border: 1px solid rgba(255,126,95,0.2);">
-        <div class="row align-items-center">
-            <div class="col-md-6">
-                <h5 class="font-weight-bold" style="color: #ff7e5f;">实时图像处理 (Edge Detection)</h5>
-                <p class="small text-muted">
-                    状态: <span id="py-status" style="color: #d35400; font-weight: bold;">正在初始化 Python 环境...</span>
-                </p>
-                <input type="file" id="media-upload" class="form-control-file mb-3" style="border: 1px solid #ddd; padding: 5px; border-radius: 4px; width: 100%;">
+        <div class="row">
+            <div class="col-md-4">
+                <h5 class="font-weight-bold" style="color: var(--accent-orange);">实时算法演示</h5>
+                <p class="small text-muted">上传图片，Python 将在浏览器内实时运行 <b>边缘检测 (Edge Detection)</b> 算法。</p>
+                <div class="custom-file mb-3">
+                    <input type="file" id="media-upload" class="custom-file-input" accept="image/*">
+                    <label class="custom-file-label" for="media-upload">选择晶体结构图...</label>
+                </div>
+                <div id="py-status" class="badge badge-secondary p-2">⏳ 引擎初始化中...</div>
             </div>
-            <div class="col-md-6 text-center">
-                <div id="media-preview" style="min-height: 200px; border: 2px dashed #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #fafafa;">
-                    <span class="text-muted small">环境就绪后上传图片</span>
+            
+            <!-- 对比展示区 -->
+            <div class="col-md-8">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <div class="small mb-1 text-muted">原始图像 (Original)</div>
+                        <div id="orig-preview" class="preview-box"></div>
+                    </div>
+                    <div class="col-6">
+                        <div class="small mb-1 text-muted">处理结果 (Processed)</div>
+                        <div id="proc-preview" class="preview-box"></div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+     <!-- 使用 cdnjs 提高加载成功率 -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2026.3.1/core.css" />
+   <script type="module" src="https://pyscript.net/releases/2026.3.1/core.js"></script>
+    <script type="module" crossorigin src="https://cdn.jsdelivr.net.cn/npm/@gradio/lite/dist/lite.js"></script>
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net.cn/npm/@gradio/lite/dist/lite.css" />
 
     <py-config>
         packages = ["pillow"]
@@ -97,39 +107,64 @@ role-tables:
         import io, base64
         from js import document, Uint8Array
 
-        # 环境加载成功回调
-        document.getElementById("py-status").innerHTML = "✅ 就绪 (Ready)"
-        document.getElementById("py-status").style.color = "green"
+        # 环境就绪
+        status = document.getElementById("py-status")
+        status.innerHTML = "✅ Python Ready"
+        status.className = "badge badge-success p-2"
 
         @when("change", "#media-upload")
-        async def handle_upload(event):
-            preview = document.getElementById("media-preview")
-            preview.innerHTML = "<small>Python 正在处理...</small>"
+        async def handle_media(event):
+            orig_div = document.getElementById("orig-preview")
+            proc_div = document.getElementById("proc-preview")
             
-            file_list = event.target.files
-            if not file_list or len(file_list) == 0: return
+            file = event.target.files.item(0)
+            if not file: return
             
-            file = file_list.item(0)
-            array_buf = await file.arrayBuffer()
-            # 必须转换为 Uint8Array 才能被 Python io 识别
-            bytes_data = Uint8Array.new(array_buf).to_bytes()
+            # 读取数据
+            buf = await file.arrayBuffer()
+            raw_bytes = Uint8Array.new(buf).to_bytes()
+            
+            # 显示原图
+            img_b64 = base64.b64encode(raw_bytes).decode()
+            orig_div.innerHTML = f'<img src="data:image/png;base64,{img_b64}" class="img-fluid rounded">'
+            
+            # Python 处理
+            proc_div.innerHTML = "<div class='spinner-border spinner-border-sm text-primary'></div>"
             
             try:
-                img = Image.open(io.BytesIO(bytes_data))
-                # 边缘检测算法
+                img = Image.open(io.BytesIO(raw_bytes))
+                # 算法：转灰度 + 边缘增强
                 processed = img.convert("L").filter(ImageFilter.FIND_EDGES)
                 
-                # 写回页面
+                # 输出处理图
                 out_io = io.BytesIO()
                 processed.save(out_io, format="PNG")
-                b64_str = base64.b64encode(out_io.getvalue()).decode()
-                
-                preview.innerHTML = f'<img src="data:image/png;base64,{b64_str}" style="max-width:100%; max-height:300px; border-radius:4px;">'
+                proc_b64 = base64.b64encode(out_io.getvalue()).decode()
+                proc_div.innerHTML = f'<img src="data:image/png;base64,{proc_b64}" class="img-fluid rounded shadow-sm">'
             except Exception as e:
-                preview.innerHTML = f"<b style='color:red;'>错误: {str(e)}</b>"
+                proc_div.innerHTML = f"<span class='text-danger small'>处理失败</span>"
     </script>
     {% endraw %}
 </section>
+
+<style>
+    .preview-box {
+        min-height: 180px;
+        background: #f8f9fa;
+        border: 2px dashed #dee2e6;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    .preview-box img {
+        max-height: 180px;
+        width: auto;
+        object-fit: contain;
+    }
+</style>
 
 <!-- 4. 人员板块 -->
 <div id="people" class="mb-5">
