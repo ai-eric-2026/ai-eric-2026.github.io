@@ -2,20 +2,6 @@
 layout: default
 title: Home
 notitle: true
-
-role-tables:
-- - roles: [faculty, postdoc, staff]
-    width: 4
-    image: true
-  - roles: [grad]
-    width: 8
-    image: true
-- - roles: [collab, ugrad, ugrad-alum]
-    width: 5
-    image: false
-  - roles: [alum]
-    width: 7
-    image: false
 ---
 
 <!-- 1. 强化视觉引导的横幅 -->
@@ -23,150 +9,91 @@ role-tables:
     <div class="container-fluid py-2">
         <h2 class="display-5 font-weight-bold mb-4">Generative AI for Materials Discovery</h2>
         <p class="lead">
-            <b>肖航课题组</b>开发了首个<b>基于字符串的可逆晶体表示法：SLICES</b>，实现了生成式AI驱动的 <b>Text2Crystal</b>。SLICES有望成为AI驱动的晶体材料逆向设计的标准工具，即<b>晶体材料的 "SMILES"</b>。
-        </p>
-        <hr class="my-4">
-        <p class="text-muted italic">
-            The <b>XIAO Research Group</b> developed the first <b>string-based invertible, invariant crystallographic representation: SLICES</b>, achieving <b>Text2Crystal</b> powered by generative AI. SLICES has the potential to become a standard tool for <i>in-silico</i> materials discovery, i.e., "SMILES" for crystal structures.
+            <b>肖航课题组</b>开发了首个<b>基于字符串的可逆晶体表示法：SLICES</b>...
         </p>
     </div>
 </div>
 
-<!-- 2. 新闻板块 -->
-<section class="mb-5">
-    <div class="d-flex justify-content-between align-items-end mb-3 border-bottom pb-2">
-        <h2 class="mb-0">新闻 <span class="text-secondary" style="font-weight: 300;">News</span></h2>
-        <a href="{{ site.baseurl }}/blog.html" class="btn btn-sm btn-outline-primary">
-            <i class="fa fa-history mr-1"></i> Older posts
-        </a>
-    </div>
-    <ul class="news list-unstyled custom-news-list">
-        {% for post in site.posts limit: site.front_page_news %}
-            <li class="mb-2 py-1">
-                {% include news-item.html item=post %}
-            </li>
-        {% endfor %}
-    </ul>
-</section>
-
-<!-- 3. Gradio 组件 -->
+<!-- 2. Gradio Chatbox (修复后的脚本链接) -->
 <section class="mb-5">
     <h2 class="mb-3 border-bottom pb-2">YE Linqing <span class="text-secondary" style="font-weight: 300;">Chatbox</span></h2>
-    <div class="gradio-container shadow-sm rounded overflow-hidden" style="min-height: 500px; background-color: #fff;">
-    <!-- 替换为以下代码 (使用 npmmirror 或官方最新版) -->    
-<script type="module" src="https://cdn.jsdelivr.net"></script>
-
+    <div class="gradio-container shadow-sm rounded overflow-hidden" style="min-height: 500px; background-color: #fff; border: 1px solid #eee;">
+        <!-- 使用 unpkg 镜像，这个在 GitHub Pages 上极稳 -->
+        <script type="module" src="https://unpkg.com"></script>
         <gradio-app src="https://ai-eric2026-chatbot-test.hf.space" target="_blank"></gradio-app>
     </div>
 </section>
 
-<!-- 4. Python for Digital Media (GitHub Pages 兼容版) -->
+<!-- 3. Python 数字媒体实验室 (采用极致兼容模式) -->
 <section class="mb-5">
     <h2 class="mb-3 border-bottom pb-2">数字媒体实验室 <span class="text-secondary" style="font-weight: 300;">Python Lab</span></h2>
     
-    <!-- 引入 PyScript (必须放在使用它的元素之前) -->
-    <link rel="stylesheet" href="https://pyscript.net" />
-    <script type="module" src="https://pyscript.net"></script>
+    <!-- 替换为 cdnjs 源，避免 pyscript.net 的连接问题 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com" />
+    <script type="module" src="https://cdnjs.cloudflare.com"></script>
 
-    <div class="lab-container p-4 shadow-sm rounded" style="background: #fff; border: 1px solid rgba(255,126,95,0.2); position: relative;">
+    <div class="lab-container p-4 shadow-sm rounded" style="background: #fff; border: 1px solid rgba(255,126,95,0.2);">
         <div class="row align-items-center">
             <div class="col-md-6">
-                <h5 class="font-weight-bold" style="color: var(--accent-orange);">实时晶体结构/图像边缘检测</h5>
-                <p class="small text-muted">基于 Python Pillow 库。上传图片后，Python 解释器将在浏览器本地执行算法。</p>
+                <h5 class="font-weight-bold" style="color: #ff7e5f;">实时图像处理</h5>
+                <p class="small text-muted">Python 解释器正在浏览器中加载... <span id="py-load-status" style="color:red;">⏳ 载入中</span></p>
                 <input type="file" id="media-upload" class="form-control-file mb-3" style="border: 1px solid #ddd; padding: 5px; border-radius: 4px; width: 100%;">
-                <div id="status-tag" style="font-size: 0.7rem; color: #666;">状态: <span id="py-status">正在初始化 Python 环境...</span></div>
             </div>
             <div class="col-md-6 text-center">
-                <div id="media-preview" style="min-height: 220px; border: 2px dashed #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: #fafafa;">
-                    <span class="text-muted small">等待文件上传</span>
+                <div id="media-preview" style="min-height: 200px; border: 2px dashed #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                    <span class="text-muted small">等待图片上传</span>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 关键配置：指定包 -->
     <py-config>
         packages = ["pillow"]
     </py-config>
 
     {% raw %}
     <script type="py">
-        import io
-        import base64
         from pyscript import when
         from PIL import Image, ImageFilter
+        import io, base64
         from js import document, Uint8Array
 
-        # 初始化完成提示
-        document.getElementById("py-status").innerHTML = "✅ 就绪 (Ready)"
+        # 只要代码运行到这里，说明 Python 环境已经 Ready
+        document.getElementById("py-load-status").innerHTML = "✅ 已就绪"
+        document.getElementById("py-load-status").style.color = "green"
 
         @when("change", "#media-upload")
-        async def handle_media(event):
-            preview_div = document.getElementById("media-preview")
-            preview_div.innerHTML = "<small>Python 正在处理中...</small>"
+        async def handle_upload(event):
+            preview = document.getElementById("media-preview")
+            preview.innerHTML = "处理中..."
             
-            file_list = event.target.files
-            if not file_list or len(file_list) == 0:
-                preview_div.innerHTML = "未选择文件"
-                return
+            files = event.target.files
+            if not files: return
             
-            file = file_list.item(0)
-            
-            # 读取数据
-            array_buf = await file.arrayBuffer()
-            bytes_data = Uint8Array.new(array_buf).to_bytes()
+            file = files.item(0)
+            buf = await file.arrayBuffer()
+            data = Uint8Array.new(buf).to_bytes()
             
             try:
-                # 图像算法
-                img = Image.open(io.BytesIO(bytes_data))
+                img = Image.open(io.BytesIO(data))
+                # 简单滤镜算法
                 processed = img.convert("L").filter(ImageFilter.FIND_EDGES)
                 
-                # 输出转换
-                out_buf = io.BytesIO()
-                processed.save(out_buf, format="PNG")
-                b64_str = base64.b64encode(out_buf.getvalue()).decode()
+                out = io.BytesIO()
+                processed.save(out, format="PNG")
+                b64 = base64.b64encode(out.getvalue()).decode()
                 
-                # 更新 DOM
-                preview_div.innerHTML = f'<img src="data:image/png;base64,{b64_str}" style="max-width:100%; max-height:300px; border-radius:4px;">'
+                preview.innerHTML = f'<img src="data:image/png;base64,{b64}" style="max-width:100%; max-height:300px; border-radius:4px;">'
             except Exception as e:
-                preview_div.innerHTML = f"<small style='color:red;'>错误: {str(e)}</small>"
+                preview.innerHTML = f"错误: {str(e)}"
     </script>
     {% endraw %}
 </section>
 
-<!-- 5. 人员板块 -->
-<div id="people" class="mb-5">
-    <h2 class="mb-4 border-bottom pb-2">团队成员 <span class="text-secondary" style="font-weight: 300;">People</span></h2>
-    {% for role-table in page.role-tables %}
-        <section class="people row mb-4">
-            {% for role-column in role-table %}
-                <div class="col-md-{{ role-column.width }}">
-                    {% for role in role-column.roles %}
-                        <div class="role-group mb-4">
-                            {% include role-people.html role=role image=role-column.image %}
-                        </div>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-        </section>
-    {% endfor %}
-</div>
-
+<!-- 4. 人员板块样式 -->
 <style>
-    :root {
-        --accent-orange: #ff7e5f;
-        --hover-orange: #feb47b;
-        --link-bg: rgba(255, 126, 95, 0.1);
-    }
+    :root { --accent-orange: #ff7e5f; }
     .jumbotron b { color: #0056b3; }
-    .custom-news-list li { border-bottom: 1px dashed #eee; transition: background 0.3s; }
-    .custom-news-list li:hover { background-color: #fcfcfc; }
     .gradio-container { border: 1px solid #dee2e6; }
-    
-    /* 链接动画样式 */
-    .hero-section a, .news a, #people a, .btn-link {
-        color: #d35400; text-decoration: none; position: relative; padding: 2px 6px; transition: all 0.3s ease; font-weight: 500; border-radius: 4px;
-    }
-    .hero-section a:hover, .news a:hover, .btn-link:hover {
-        background-color: var(--link-bg); color: #e67e22;
-    }
 </style>
