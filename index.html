@@ -49,7 +49,7 @@ role-tables:
     </ul>
 </section>
 
-<!-- 3. Gradio 组件优化：增加容器限制高度或美化间距 -->
+<!-- 3. Gradio 组件 -->
 <section class="mb-5">
     <h2 class="mb-3 border-bottom pb-2">YE Linqing <span class="text-secondary" style="font-weight: 300;">Chatbox</span></h2>
     <div class="gradio-container shadow-sm rounded overflow-hidden" style="min-height: 500px; background-color: #fff;">
@@ -58,7 +58,61 @@ role-tables:
     </div>
 </section>
 
-<!-- 4. 人员板块 -->
+<!-- 4. Python for Digital Media 实验板块 -->
+<section class="mb-5">
+    <h2 class="mb-3 border-bottom pb-2">数字媒体实验室 <span class="text-secondary" style="font-weight: 300;">Python Lab</span></h2>
+    
+    <!-- 加载 PyScript 环境 -->
+    <link rel="stylesheet" href="https://pyscript.net" />
+    <script type="module" src="https://pyscript.net"></script>
+
+    <div class="lab-container p-4 shadow-sm rounded" style="background: #fff; border: 1px solid rgba(255,126,95,0.2);">
+        <div class="row">
+            <div class="col-md-6">
+                <h5 class="font-weight-bold" style="color: var(--accent-orange);">实时图像处理 (Edge Detection)</h5>
+                <p class="small text-muted">基于 Python Pillow 库。上传晶体结构图或任意图片，Python 将实时执行边缘检测算法。</p>
+                <input type="file" id="media-upload" class="form-control-file mb-3">
+            </div>
+            <div class="col-md-6 text-center">
+                <div id="media-preview" style="min-height: 200px; border: 2px dashed #eee; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                    <span class="text-muted" style="font-size: 0.8rem;">等待上传图片...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <py-config>
+        packages = ["pillow"]
+    </py-config>
+
+    <script type="py">
+        from pyscript import when, display
+        from PIL import Image, ImageFilter
+        import io, base64
+        from js import document
+
+        @when("change", "#media-upload")
+        async def handle_media(event):
+            file = event.target.files.item(0)
+            if not file: return
+            
+            # 读取并处理
+            buf = await file.arrayBuffer()
+            img = Image.open(io.BytesIO(buf.to_bytes()))
+            
+            # 执行数字媒体算法：寻找轮廓边缘
+            processed = img.convert("L").filter(ImageFilter.FIND_EDGES)
+            
+            # 输出回页面
+            out_buf = io.BytesIO()
+            processed.save(out_buf, format="PNG")
+            b64_str = base64.b64encode(out_buf.getvalue()).decode()
+            
+            document.getElementById("media-preview").innerHTML = f'<img src="data:image/png;base64,{b64_str}" style="max-width:100%; border-radius:8px;">'
+    </script>
+</section>
+
+<!-- 5. 人员板块 -->
 <div id="people" class="mb-5">
     <h2 class="mb-4 border-bottom pb-2">团队成员 <span class="text-secondary" style="font-weight: 300;">People</span></h2>
     {% for role-table in page.role-tables %}
@@ -78,22 +132,19 @@ role-tables:
 
 <style>
     /* 补齐一些基本的微调样式 */
+    :root {
+        --accent-orange: #ff7e5f;
+        --hover-orange: #feb47b;
+        --link-bg: rgba(255, 126, 95, 0.1);
+    }
     .jumbotron b { color: #0056b3; }
     .custom-news-list li { border-bottom: 1px dashed #eee; transition: background 0.3s; }
     .custom-news-list li:hover { background-color: #fcfcfc; }
     .gradio-container { border: 1px solid #dee2e6; }
-    <style>
-    /* 核心风格：活力橙与科技感结合 */
-    :root {
-        --accent-orange: #ff7e5f;    /* 主色调：珊瑚橙 */
-        --hover-orange: #feb47b;     /* 悬停色：金橙色 */
-        --link-bg: rgba(255, 126, 95, 0.1); /* 浅橙色背景 */
-        --primary-blue: #2d3436;     /* 保持正文深色，确保对比度 */
-    }
-
-    /* 1. 链接样式：橙色滑动下划线 + 浅橙背景 */
+    
+    /* 橙色风格链接动画 */
     .hero-section a, .news a, #people a, .btn-link {
-        color: #d35400; /* 深橙色文字，保证可读性 */
+        color: #d35400;
         text-decoration: none;
         position: relative;
         padding: 2px 6px;
@@ -101,59 +152,8 @@ role-tables:
         font-weight: 500;
         border-radius: 4px;
     }
-
-    /* 橙色底线动画 */
-    .hero-section a::after, .news a::after, .btn-link::after {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 2px;
-        bottom: 0;
-        left: 0;
-        background: linear-gradient(to right, var(--accent-orange), var(--hover-orange));
-        transform: scaleX(0);
-        transform-origin: bottom right;
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* 悬停状态：背景变色 + 底线展开 */
     .hero-section a:hover, .news a:hover, .btn-link:hover {
         background-color: var(--link-bg);
         color: #e67e22;
-        text-decoration: none;
     }
-
-    .hero-section a:hover::after, .news a:hover::after, .btn-link:hover::after {
-        transform: scaleX(1);
-        transform-origin: bottom left;
-    }
-
-    /* 2. 英雄区左侧装饰条同步换色 */
-    .hero-section {
-        padding: 3rem 1.5rem;
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-        border: 1px solid rgba(255,126,95,0.1);
-        margin-bottom: 3rem;
-        position: relative;
-        overflow: hidden;
-    }
-    .hero-section::before {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; width: 5px; height: 100%;
-        background: linear-gradient(to bottom, var(--accent-orange), var(--hover-orange));
-    }
-
-    /* 3. 强调文字颜色 */
-    .hero-section b { color: #e67e22; }
-
-    /* 4. 按钮风格微调 */
-    .btn-link {
-        display: inline-block;
-        margin-top: 10px;
-    }
-</style>
-
 </style>
