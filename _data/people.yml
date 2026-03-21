@@ -36,6 +36,11 @@ kedeng:
     role: grad
     image: /img/people/kedeng.jpg
 
+linqing:
+    display_name: "叶林清 Linqing Ye"
+    role: grad
+    image: /img/people/linqing.jpg
+
 storm:
     display_name: "虚位以待  We need you!"
     role: grad
