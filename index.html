@@ -49,48 +49,48 @@ role-tables:
     </ul>
 </section>
 
-<!-- 3. Gradio 组件优化 (使用 unpkg 镜像修复 403 错误) -->
-<section class="mb-5">
-    <h2 class="mb-3 border-bottom pb-2">YE Linqing <span class="text-secondary" style="font-weight: 300;">Chatbox</span></h2>
-    <div class="gradio-container shadow-sm rounded overflow-hidden" style="min-height: 500px; background-color: #fff;">
-        <script type="module" src="https://unpkg.com"></script>
-        <gradio-app src="https://ai-eric2026-chatbot-test.hf.space" target="_blank"></gradio-app>
-    </div>
-</section>
-
-!-- 3.5 Python 数字媒体实验室 (对比优化版) -->
+<!-- 3.5 Python 数字媒体实验室 (修复上传按钮 + 对比优化版) -->
 <section class="mb-5">
     <h2 class="mb-3 border-bottom pb-2">数字媒体实验室 <span class="text-secondary" style="font-weight: 300;">Python Lab</span></h2>
     
     <div class="lab-container p-4 shadow-sm rounded" style="background: #fff; border: 1px solid rgba(255,126,95,0.2);">
         <div class="row">
-            <div class="col-md-4">
-                <h5 class="font-weight-bold" style="color: var(--accent-orange);">实时算法演示</h5>
-                <p class="small text-muted">上传图片，Python 将在浏览器内实时运行 <b>边缘检测 (Edge Detection)</b> 算法。</p>
-                <div class="custom-file mb-3">
-                    <input type="file" id="media-upload" class="custom-file-input" accept="image/*">
-                    <label class="custom-file-label" for="media-upload">选择晶体结构图...</label>
+            <div class="col-md-4 mb-4">
+                <h5 class="font-weight-bold" style="color: #ff7e5f;">实时算法演示</h5>
+                <p class="small text-muted">上传晶体结构图，Python 将在浏览器内实时运行 <b>边缘检测 (Edge Detection)</b> 算法。</p>
+                
+                <!-- 修复后的标准上传按钮 -->
+                <div class="form-group">
+                    <label for="media-upload" class="btn btn-outline-primary btn-block" style="cursor: pointer; border-color: #ff7e5f; color: #ff7e5f;">
+                        <i class="fa fa-cloud-upload mr-2"></i> 选择本地图片
+                    </label>
+                    <input type="file" id="media-upload" style="display: none;" accept="image/*">
                 </div>
-                <div id="py-status" class="badge badge-secondary p-2">⏳ 引擎初始化中...</div>
+
+                <div id="py-status" class="badge badge-secondary p-2 w-100">⏳ 引擎初始化中...</div>
             </div>
             
             <!-- 对比展示区 -->
             <div class="col-md-8">
                 <div class="row text-center">
                     <div class="col-6">
-                        <div class="small mb-1 text-muted">原始图像 (Original)</div>
-                        <div id="orig-preview" class="preview-box"></div>
+                        <div class="small mb-2 text-muted font-weight-bold">原始图像 (Original)</div>
+                        <div id="orig-preview" class="preview-box">
+                            <span class="text-muted small">未上传</span>
+                        </div>
                     </div>
                     <div class="col-6">
-                        <div class="small mb-1 text-muted">处理结果 (Processed)</div>
-                        <div id="proc-preview" class="preview-box"></div>
+                        <div class="small mb-2 text-muted font-weight-bold">算法处理 (Processed)</div>
+                        <div id="proc-preview" class="preview-box">
+                            <span class="text-muted small">等待处理</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-     <!-- 使用 cdnjs 提高加载成功率 -->
+    <!-- 引用资源 -->
     <link rel="stylesheet" href="https://pyscript.net/releases/2026.3.1/core.css" />
    <script type="module" src="https://pyscript.net/releases/2026.3.1/core.js"></script>
     <script type="module" crossorigin src="https://cdn.jsdelivr.net.cn/npm/@gradio/lite/dist/lite.js"></script>
@@ -107,10 +107,11 @@ role-tables:
         import io, base64
         from js import document, Uint8Array
 
-        # 环境就绪
-        status = document.getElementById("py-status")
-        status.innerHTML = "✅ Python Ready"
-        status.className = "badge badge-success p-2"
+        # 只要代码运行到这里，说明 Python 环境 Ready
+        status_tag = document.getElementById("py-status")
+        status_tag.innerHTML = "✅ Python 引擎就绪"
+        status_tag.style.backgroundColor = "#28a745"
+        status_tag.style.color = "white"
 
         @when("change", "#media-upload")
         async def handle_media(event):
@@ -120,51 +121,45 @@ role-tables:
             file = event.target.files.item(0)
             if not file: return
             
-            # 读取数据
-            buf = await file.arrayBuffer()
-            raw_bytes = Uint8Array.new(buf).to_bytes()
+            # 1. 读取并显示原图
+            array_buf = await file.arrayBuffer()
+            raw_bytes = Uint8Array.new(array_buf).to_bytes()
             
-            # 显示原图
-            img_b64 = base64.b64encode(raw_bytes).decode()
-            orig_div.innerHTML = f'<img src="data:image/png;base64,{img_b64}" class="img-fluid rounded">'
+            orig_b64 = base64.b64encode(raw_bytes).decode()
+            orig_div.innerHTML = f'<img src="data:image/png;base64,{orig_b64}" style="max-width:100%; max-height:200px; border-radius:4px;">'
             
-            # Python 处理
-            proc_div.innerHTML = "<div class='spinner-border spinner-border-sm text-primary'></div>"
+            # 2. 显示处理中状态
+            proc_div.innerHTML = "<div class='text-muted small'>正在计算...</div>"
             
             try:
+                # 3. Python Pillow 图像算法
                 img = Image.open(io.BytesIO(raw_bytes))
-                # 算法：转灰度 + 边缘增强
+                # 边缘检测处理
                 processed = img.convert("L").filter(ImageFilter.FIND_EDGES)
                 
-                # 输出处理图
+                # 4. 输出处理后的图片
                 out_io = io.BytesIO()
                 processed.save(out_io, format="PNG")
                 proc_b64 = base64.b64encode(out_io.getvalue()).decode()
-                proc_div.innerHTML = f'<img src="data:image/png;base64,{proc_b64}" class="img-fluid rounded shadow-sm">'
+                
+                proc_div.innerHTML = f'<img src="data:image/png;base64,{proc_b64}" style="max-width:100%; max-height:200px; border-radius:4px; border: 1px solid #ddd;">'
             except Exception as e:
-                proc_div.innerHTML = f"<span class='text-danger small'>处理失败</span>"
+                proc_div.innerHTML = f"<span class='text-danger small'>算法运行出错</span>"
     </script>
     {% endraw %}
 </section>
 
-<style>
-    .preview-box {
-        min-height: 180px;
-        background: #f8f9fa;
-        border: 2px dashed #dee2e6;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-    .preview-box img {
-        max-height: 180px;
-        width: auto;
-        object-fit: contain;
-    }
-</style>
+
+
+
+<!-- 3. Gradio 组件优化 (使用 unpkg 镜像修复 403 错误) -->
+<section class="mb-5">
+    <h2 class="mb-3 border-bottom pb-2">YE Linqing <span class="text-secondary" style="font-weight: 300;">Chatbox</span></h2>
+    <div class="gradio-container shadow-sm rounded overflow-hidden" style="min-height: 500px; background-color: #fff;">
+        <script type="module" src="https://unpkg.com"></script>
+        <gradio-app src="https://ai-eric2026-chatbot-test.hf.space" target="_blank"></gradio-app>
+    </div>
+</section>
 
 <!-- 4. 人员板块 -->
 <div id="people" class="mb-5">
@@ -222,5 +217,21 @@ role-tables:
     .btn-link {
         display: inline-block;
         margin-top: 10px;
+    }
+
+    /* 预览框美化样式 */
+    .preview-box {
+        min-height: 200px;
+        background: #fcfcfc;
+        border: 2px dashed #eee;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        transition: border-color 0.3s;
+    }
+    .preview-box:hover {
+        border-color: #ff7e5f;
     }
 </style>
