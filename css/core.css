@@ -1,0 +1,4 @@
+/* PyScript Core Styles */
+.py-error{background-color:#ff00002b;color:#800;padding:1em;margin:1em 0;border-left:5px solid #800;font-family:monospace;white-space:pre-wrap}
+.py-terminal{background-color:#1a1a1a;color:#f0f0f0;padding:1em;border-radius:4px;font-family:monospace;overflow:auto}
+py-script,py-config{display:none}
